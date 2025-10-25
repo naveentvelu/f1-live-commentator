@@ -1,0 +1,17 @@
+[
+  {
+    "meeting_key": 1246,
+    "circuit_key": 61,
+    "circuit_short_name": "Singapore",
+    "meeting_code": "SGP",
+    "location": "Marina Bay",
+    "country_key": 157,
+    "country_code": "SGP",
+    "country_name": "Singapore",
+    "meeting_name": "Singapore Grand Prix",
+    "meeting_official_name": "FORMULA 1 SINGAPORE AIRLINES SINGAPORE GRAND PRIX 2024",
+    "gmt_offset": "08:00:00",
+    "date_start": "2024-09-20T09:30:00+00:00",
+    "year": 2024
+  }
+]
