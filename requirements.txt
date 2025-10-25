@@ -1,0 +1,13 @@
+# Core Python dependencies
+python-dotenv         # Load environment variables
+requests              # HTTP requests for API calls
+
+# Machine Learning / LLM
+openai
+
+# LangChain & LangGraph
+langchain            # LLM orchestration and utilities
+langgraph            # Graph-based AI pipelines
+
+# Date/time handling
+python-dateutil==2.8.2        # Parsing timestamps from telemetry
