@@ -6,6 +6,8 @@ from pyglet.gl import glClearColor
 
 window = pyglet.window.Window(1400, 800)
 
+batch = pyglet.graphics.Batch()
+
 # Set background colour
 glClearColor(255, 255, 255, 1)
 
@@ -73,13 +75,13 @@ def update(dt):
         driver["y"] = ld["y"]
         state.location_index += 1
 
+
 @window.event
 def on_draw():
     window.clear()
     # Draw driver locations
-    for index, driver in state.drivers.items():
-        circle = shapes.Circle(x=driver["x"], y=driver["y"], radius=20, color=driver["team_colour_rgb"])
-        circle.draw()
+    rendered_shapes = tuple(shapes.Circle(x=driver["x"], y=driver["y"], radius=20, color=driver["team_colour_rgb"], batch=batch) for index, driver in state.drivers.items())
+    batch.draw()
 
 # Scheudle periodic updating of racer locations
 pyglet.clock.schedule_interval(update, 0.005)
