@@ -218,18 +218,117 @@ def build_driver_bio(name: str, cutoff_year: int):
         print(cutoff_year)
     return bio
 
+# New helper that builds bio using the page as of cutoff datetime
+def build_driver_bio_at(name: str, cutoff_dt: datetime.datetime):
+    title = wiki_find_title(name, extra_hint="racing driver")
+    if not title:
+        return None
 
+    # Try to get REST summary (current) as a fallback for title/description/url
+    rest = None
+    try:
+        rest = _get(WIKI_REST + title)
+    except Exception:
+        rest = None
+
+    summary = {
+        "title": (rest or {}).get("title"),
+        "description": clean_wiki_text((rest or {}).get("description")) if rest else None,
+        "extract": None,
+        "content_urls": (rest or {}).get("content_urls", {}).get("desktop", {}).get("page") if rest else None,
+    }
+
+    # Prefer the page lead as of the cutoff datetime
+    lead = wiki_top_intro_as_of(title, cutoff_dt)
+    if lead:
+        summary["driver_profile"] = lead
+        # Also use the lead as an 'extract' if REST extract is not available
+        summary["extract"] = summary.get("extract") or lead
+    else:
+        # fallback to current summary/sections
+        cur = wiki_summary(title)
+        if cur:
+            summary["driver_profile"] = cur.get("driver_profile")
+            summary["extract"] = cur.get("extract")
+
+    # Still redact any sentences that mention years beyond the cutoff
+    cutoff_year = cutoff_dt.year
+    if summary.get("extract"):
+        summary["extract"] = redact_future_spoilers(summary["extract"], cutoff_year)
+    if summary.get("driver_profile"):
+        summary["driver_profile"] = redact_future_spoilers(summary["driver_profile"], cutoff_year)
+
+    return summary
+
+def _to_iso_z(dt: datetime.datetime) -> str:
+    """Return an ISO8601 UTC timestamp string (Z) suitable for MediaWiki rvend param."""
+    if dt.tzinfo is None:
+        # assume naive datetimes are already in UTC
+        return dt.strftime("%Y-%m-%dT%H:%M:%SZ")
+    return dt.astimezone(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+
+def wiki_revision_before(title: str | None, cutoff_dt: datetime.datetime):
+    """
+    Return the revision id of the last edit to `title` at or before cutoff_dt.
+    Uses action=query&prop=revisions with rvend=timestamp.
+    """
+    if not title:
+        return None
+    ts = _to_iso_z(cutoff_dt)
+    try:
+        j = _get(WIKI_SEARCH, action="query", titles=title, prop="revisions", rvlimit=1, rvprop="ids|timestamp", rvend=ts, format="json")
+        pages = j.get("query", {}).get("pages", {})
+        for p in pages.values():
+            revs = p.get("revisions", [])
+            if revs:
+                return revs[0].get("revid")
+        return None
+    except requests.HTTPError:
+        return None
+
+def wiki_top_intro_as_of(title: str | None, cutoff_dt: datetime.datetime) -> str | None:
+    """
+    Fetch the lead (intro) of the page as it existed at cutoff_dt.
+    Uses the revision id obtained from wiki_revision_before and action=parse with oldid.
+    """
+    if not title:
+        return None
+    rev_id = wiki_revision_before(title, cutoff_dt)
+    if not rev_id:
+        return None
+    try:
+        j = _get(WIKI_SEARCH, action="parse", oldid=rev_id, prop="text", section=0, format="json")
+        html_text = j.get("parse", {}).get("text", {}).get("*", "") or ""
+        if not html_text:
+            return None
+        # Remove tables/infoboxes/navboxes
+        html_text = re.sub(r'<table[^>]*>.*?</table>', '', html_text, flags=re.DOTALL|re.IGNORECASE)
+        html_text = re.sub(r'<sup[^>]*>.*?</sup>', '', html_text, flags=re.DOTALL|re.IGNORECASE)
+        text = re.sub(r'<[^>]+>', '', html_text)
+        text = html.unescape(text)
+        text = re.sub(r'\s+', ' ', text).strip()
+        if not text:
+            return None
+        paras = [p.strip() for p in re.split(r'(?:\n{2,}|(?<=\.)\s{2,})', text) if p.strip()]
+        lead = paras[0] if paras else text
+        lead = re.sub(r'\[\s*\d+\s*\]', '', lead)
+        lead = re.sub(r'\s*\[\s*citation needed\s*\]\s*', '', lead, flags=re.IGNORECASE)
+        return lead or None
+    except requests.HTTPError:
+        return None
 
 def build_and_script():
     race = load_race("data/sessions.json")
     drivers = load_drivers("data/drivers.json")
 
+    # determine cutoff datetime (use race['date_start'] which is a datetime)
+    cutoff_dt = race["date_start"]
+
     # build a bios dict keyed by driver number and write to data/drivers_history.json
     bios = {}
     for dnum, d in drivers.items():
         try:
-            bio = build_driver_bio(d.get("full_name"), cutoff_year=race["year"])
-            bio['driver_profile'] = redact_future_spoilers(bio.get("driver_profile"), cutoff_year=race["year"])
+            bio = build_driver_bio_at(d.get("full_name"), cutoff_dt=cutoff_dt)
         except Exception as e:
             bio = {"error": str(e)}
         bios[str(dnum)] = {
