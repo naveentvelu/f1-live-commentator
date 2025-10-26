@@ -16,6 +16,8 @@ The system employs multiple **specialized AI agents** for contextual understandi
 
 ## System Architecture
 
+![Image](f1-ai-commentator.png)
+
 ### 1. **Data Sources**
 
 - **Wikipedia**  
