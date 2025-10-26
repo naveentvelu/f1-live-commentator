@@ -15,15 +15,12 @@ The system employs multiple **specialized AI agents** for contextual understandi
 ---
 ## Sample
 ### 🎬 Video
-<video controls width="640">
-  <source src="https://drive.google.com/file/d/1sTj7iE1fvAoRFwN86KxaxcuqI2pGgeFY/view?usp=drive_link" type="video/mp4">
-  Your browser does not support the video tag.
+
+<video src="https://drive.google.com/file/d/1sTj7iE1fvAoRFwN86KxaxcuqI2pGgeFY/view?usp=drive_link" type="video/mp4" width="80%" controls>
 </video>
 
 ### 🔈 Audio Demo
-<audio controls>
-  <source src="https://github.com/user-attachments/files/23151336/audio_without_background_noise.wav" type="audio/wav">
-  Your browser does not support the audio tag.
+<audio src="https://github.com/user-attachments/files/23151336/audio_without_background_noise.wav" type="audio/wav" controls>
 </audio>
 
 --- 
