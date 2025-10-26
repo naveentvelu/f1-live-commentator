@@ -14,7 +14,7 @@ batch = pyglet.graphics.Batch()
 glClearColor(255, 255, 255, 1)
 
 # Load drivers
-with open('../data/drivers.json', 'r') as file:
+with open('../data/open_f1/drivers.json', 'r') as file:
     drivers = {driver["driver_number"]: driver for driver in json.load(file)}
 
 # Add driver attributes relevant for the simulation
@@ -30,7 +30,7 @@ for _, driver in drivers.items():
     driver["team_colour_rgb"] = (r,g,b)
 
 # Load in racer locations
-with open('../data/locations.json', 'r') as file:
+with open('../data/open_f1/locations.json', 'r') as file:
     locations_data = json.load(file)
 
 print("Successfully loaded drivers and locations")
