@@ -21,10 +21,10 @@ meeting = {
 llm_predictor = F1RacePredictor(meeting)
 
 graph = StateGraph(dict)
-# graph.add_node("tts", clone_voice_node)
+graph.add_node("tts", clone_voice_node)
 graph.add_node("llm", llm_predictor.invoke)
-# graph.add_edge("llm", "tts")
-# graph.add_edge("tts", END)
+graph.add_edge("llm", "tts")
+graph.add_edge("tts", END)
 graph.add_edge("llm", END)
 graph.set_entry_point("llm")
 
@@ -33,7 +33,6 @@ app = graph.compile()
 # --------------------- Run ---------------------
 state_store_path = "data/commentary/input/state_store.json"
 state = intro_bot()
-# state = {"commentator_response": [response.content]}
 with open("data/open_f1/events_5s_indexed.json", "r", encoding="utf-8") as f:
     drivers = json.load(f)
 for i, (time_stamp, driver_data) in enumerate(drivers.items()):
@@ -47,12 +46,10 @@ for i, (time_stamp, driver_data) in enumerate(drivers.items()):
     except:
         pass    
     state['latest_events'] = [event['event_description'] for event in driver_data]
-    if len([event['event_description'] for event in driver_data]) == 0:
     state['output_dir'] = f"scripts/agents/output/audio_{time_stamp}.wav"
     state = app.invoke(state)
     with open(state_store_path, "w", encoding="utf-8") as f:
         json.dump(state, f, indent=4, ensure_ascii=False)
-
 
 end = time.time()
 print(f"Execution time: {end - start:.2f} seconds")
