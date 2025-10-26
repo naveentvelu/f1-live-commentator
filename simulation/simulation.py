@@ -38,6 +38,9 @@ for ld in locations_data:
 # Sort location data by time, and then driver
 locations_data.sort(key=lambda x: (x["time"], x["driver_number"]))
 
+# Sample points along the track for rendering
+track_location_data = [x for x in locations_data if x["driver_number"] == 1][:800][::4]
+
 # Set origin to be initial position
 alpha_x = 0.05
 alpha_y = 0.05
@@ -78,12 +81,19 @@ def update(dt):
 
 @window.event
 def on_draw():
+    # Clear background
     window.clear()
+
+    # Draw track
+    track_joints = tuple(shapes.Circle(x=track_point["x"], y=track_point["y"], radius=4, color=(0,0,0), batch=batch) for track_point in track_location_data)
+
+    track_lines = tuple(shapes.Line(x=track_location_data[i]["x"], y=track_location_data[i]["y"], x2=track_location_data[i+1]["x"], y2=track_location_data[i+1]["y"], thickness=7, color=(0,0,0), batch=batch) for i in range(len(track_location_data)-1))
+
     # Draw driver locations
     rendered_shapes = tuple(shapes.Circle(x=driver["x"], y=driver["y"], radius=20, color=driver["team_colour_rgb"], batch=batch) for index, driver in state.drivers.items())
     batch.draw()
 
 # Scheudle periodic updating of racer locations
-pyglet.clock.schedule_interval(update, 0.005)
+pyglet.clock.schedule_interval(update, 1/120)
 
 pyglet.app.run()
