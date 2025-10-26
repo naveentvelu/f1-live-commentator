@@ -1,7 +1,7 @@
 import pyglet
 import json
 from datetime import datetime
-from pyglet import shapes
+from pyglet import shapes, text
 from pyglet.gl import glClearColor
 
 window = pyglet.window.Window(1400, 800)
@@ -42,8 +42,8 @@ locations_data.sort(key=lambda x: (x["time"], x["driver_number"]))
 track_location_data = [x for x in locations_data if x["driver_number"] == 1][:800][::4]
 
 # Set origin to be initial position
-alpha_x = 0.05
-alpha_y = 0.05
+alpha_x = 0.08
+alpha_y = 0.08
 
 initial_x = locations_data[0]["x"] * alpha_x
 initial_y = locations_data[0]["y"] * alpha_y
@@ -54,8 +54,8 @@ for ld in locations_data:
     ld["x"] -= initial_x
     ld["y"] -= initial_y
 
-    ld["x"] += 1200
-    ld["y"] += 400
+    ld["x"] += 1250
+    ld["y"] += 375
 
 class SimulationState:
     def __init__(self, drivers, start_time):
@@ -89,8 +89,11 @@ def on_draw():
 
     track_lines = tuple(shapes.Line(x=track_location_data[i]["x"], y=track_location_data[i]["y"], x2=track_location_data[i+1]["x"], y2=track_location_data[i+1]["y"], thickness=7, color=(0,0,0), batch=batch) for i in range(len(track_location_data)-1))
 
-    # Draw driver locations
-    rendered_shapes = tuple(shapes.Circle(x=driver["x"], y=driver["y"], radius=20, color=driver["team_colour_rgb"], batch=batch) for index, driver in state.drivers.items())
+    # Draw drivers
+    driver_icons = tuple(shapes.Circle(x=driver["x"], y=driver["y"], radius=24, color=driver["team_colour_rgb"], batch=batch) for index, driver in state.drivers.items())
+
+    driver_names = tuple(text.Label(driver["name_acronym"], x=driver["x"], y=driver["y"], anchor_x="center", anchor_y="center", batch=batch) for index, driver in state.drivers.items())
+
     batch.draw()
 
 # Scheudle periodic updating of racer locations
