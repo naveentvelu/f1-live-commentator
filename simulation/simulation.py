@@ -45,10 +45,13 @@ locations_data.sort(key=lambda x: (x["time"], x["driver_number"]))
 # Sample points along the track for rendering
 track_location_data = [x for x in locations_data if x["driver_number"] == 1][:800][::4]
 
+# Determine starting index for the simulation
+starting_index = 17500
+
 # Resize and position the race within the application window
 alpha = 0.08
-initial_x = locations_data[0]["x"] * alpha
-initial_y = locations_data[0]["y"] * alpha
+initial_x = locations_data[starting_index]["x"] * alpha
+initial_y = locations_data[starting_index]["y"] * alpha
 for ld in locations_data:
     # Rescale x and y coordinates
     ld["x"] = ld["x"] * alpha
@@ -59,7 +62,7 @@ for ld in locations_data:
     ld["y"] -= initial_y
 
     ld["x"] += 1250
-    ld["y"] += 375
+    ld["y"] += 475
 
 # Set up the initial state for the simulation
 class SimulationState:
@@ -68,7 +71,7 @@ class SimulationState:
         self.location_index = 0
         self.drivers = drivers
 
-start_time = datetime.timestamp(datetime.fromisoformat(locations_data[0]["date"]))
+start_time = datetime.timestamp(datetime.fromisoformat(locations_data[starting_index]["date"]))
 state = SimulationState(drivers, start_time)
 
 ## Functions which are ran periodically to create the simulation
