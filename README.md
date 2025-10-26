@@ -13,17 +13,6 @@ It integrates **structured race data** from the [OpenF1 API](https://openf1.org/
 The system employs multiple **specialized AI agents** for contextual understanding, insight generation, predictive commentary, and speech synthesis — producing live, human-like narration using **Higgs Audio V2** and voice cloning (e.g., **David Croft’s iconic tone**).
 
 ---
-## Sample
-### 🎬 Video
-
-<video src="https://drive.google.com/file/d/1sTj7iE1fvAoRFwN86KxaxcuqI2pGgeFY/view?usp=drive_link" type="video/mp4" width="80%" controls>
-</video>
-
-### 🔈 Audio Demo
-<audio src="https://github.com/user-attachments/files/23151336/audio_without_background_noise.wav" type="audio/wav" controls>
-</audio>
-
---- 
 
 ## System Architecture
 
