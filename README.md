@@ -22,7 +22,7 @@ The system employs multiple **specialized AI agents** for contextual understandi
 
 ### 🔈 Audio Demo
 <audio controls>
-  <source src="data/commentary/output/audio_without_backgroun_noise.wav" type="audio/wav">
+  <source src="data/commentary/output/audio_without_background_noise.wav" type="audio/wav">
   Your browser does not support the audio tag.
 </audio>
 
