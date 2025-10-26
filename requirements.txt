@@ -9,5 +9,8 @@ openai
 langchain            # LLM orchestration and utilities
 langgraph            # Graph-based AI pipelines
 
+# Simulation
+pyglet
+
 # Date/time handling
 python-dateutil==2.8.2        # Parsing timestamps from telemetry
