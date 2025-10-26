@@ -4,10 +4,13 @@ requests              # HTTP requests for API calls
 
 # Machine Learning / LLM
 openai
+sentence_transfromers
 
 # LangChain & LangGraph
 langchain            # LLM orchestration and utilities
 langgraph            # Graph-based AI pipelines
+langchain_openai
+langchain-text-splitters
 
 # Simulation
 pyglet
