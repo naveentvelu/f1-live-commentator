@@ -4,8 +4,10 @@ from datetime import datetime
 from pyglet import shapes, text
 from pyglet.gl import glClearColor
 
+# Create application window with the given width and height
 window = pyglet.window.Window(1400, 800)
 
+# Create a batch group for optimized rendering
 batch = pyglet.graphics.Batch()
 
 # Set background colour
@@ -15,11 +17,13 @@ glClearColor(255, 255, 255, 1)
 with open('../data/drivers.json', 'r') as file:
     drivers = {driver["driver_number"]: driver for driver in json.load(file)}
 
+# Add driver attributes relevant for the simulation
 for _, driver in drivers.items():
+    # Add current position along the track
     driver["x"] = 0
     driver["y"] = 0
 
-    # Set driver rgb colour
+    # Add driver team colour as an rgb value
     r = int(driver["team_colour"][:2], 16)
     g = int(driver["team_colour"][2:4], 16)
     b = int(driver["team_colour"][4:6], 16)
@@ -29,7 +33,7 @@ for _, driver in drivers.items():
 with open('../data/locations.json', 'r') as file:
     locations_data = json.load(file)
 
-print("Loaded drivers and locations")
+print("Successfully loaded drivers and locations")
 
 # Convert UTC times to timestamps
 for ld in locations_data:
@@ -41,22 +45,23 @@ locations_data.sort(key=lambda x: (x["time"], x["driver_number"]))
 # Sample points along the track for rendering
 track_location_data = [x for x in locations_data if x["driver_number"] == 1][:800][::4]
 
-# Set origin to be initial position
-alpha_x = 0.08
-alpha_y = 0.08
-
-initial_x = locations_data[0]["x"] * alpha_x
-initial_y = locations_data[0]["y"] * alpha_y
+# Resize and position the race within the application window
+alpha = 0.08
+initial_x = locations_data[0]["x"] * alpha
+initial_y = locations_data[0]["y"] * alpha
 for ld in locations_data:
-    ld["x"] = ld["x"] * alpha_x
-    ld["y"] = ld["y"] * alpha_y
+    # Rescale x and y coordinates
+    ld["x"] = ld["x"] * alpha
+    ld["y"] = ld["y"] * alpha
 
+    # Add translational offset
     ld["x"] -= initial_x
     ld["y"] -= initial_y
 
     ld["x"] += 1250
     ld["y"] += 375
 
+# Set up the initial state for the simulation
 class SimulationState:
     def __init__(self, drivers, start_time):
         self.time = start_time
@@ -66,7 +71,9 @@ class SimulationState:
 start_time = datetime.timestamp(datetime.fromisoformat(locations_data[0]["date"]))
 state = SimulationState(drivers, start_time)
 
+## Functions which are ran periodically to create the simulation
 def update(dt):
+    # Increment elapsed time
     time_acceleration = 2.5
     state.time += time_acceleration * dt
 
@@ -77,7 +84,6 @@ def update(dt):
         driver["x"] = ld["x"]
         driver["y"] = ld["y"]
         state.location_index += 1
-
 
 @window.event
 def on_draw():
@@ -99,4 +105,5 @@ def on_draw():
 # Scheudle periodic updating of racer locations
 pyglet.clock.schedule_interval(update, 1/120)
 
+# Start the application
 pyglet.app.run()
