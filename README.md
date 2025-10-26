@@ -16,13 +16,13 @@ The system employs multiple **specialized AI agents** for contextual understandi
 ## Sample
 ### 🎬 Video
 <video controls width="640">
-  <source src="simulation/F1_Simulation_Video_Without_Audio.mp4" type="video/mp4">
+  <source src="https://drive.google.com/file/d/1sTj7iE1fvAoRFwN86KxaxcuqI2pGgeFY/view?usp=drive_link" type="video/mp4">
   Your browser does not support the video tag.
 </video>
 
 ### 🔈 Audio Demo
 <audio controls>
-  <source src="data/commentary/output/audio_without_background_noise.wav" type="audio/wav">
+  <source src="https://github.com/user-attachments/files/23151336/audio_without_background_noise.wav" type="audio/wav">
   Your browser does not support the audio tag.
 </audio>
 
