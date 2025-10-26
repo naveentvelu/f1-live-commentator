@@ -7,7 +7,7 @@ from langgraph.graph import StateGraph, END
 import json
 
 from .clone import clone_voice_node
-from .llm import intro_bot, F1RacePredictor
+from .llm import intro_bot, F1RacePredictor, HFEmbeddings
 
 # Example run
 start = time.time()
@@ -37,12 +37,15 @@ graph.set_entry_point("llm")
 app = graph.compile()
 
 # --------------------- Run ---------------------
-state = {"commentator_response": []}
 
+state = intro_bot()
+# print(state['commentator_response'])
+# state = {"commentator_response": [response.content]}
 with open("data/events_5s_indexed.json", "r", encoding="utf-8") as f:
     drivers = json.load(f)
 for i, (driver_id, driver_data) in enumerate(drivers.items()):
-    if i > 5:
+    print(driver_id)
+    if i > 11:
         break
     try:
         with open("./input/state_store.json", "r", encoding="utf-8") as f:
@@ -50,10 +53,12 @@ for i, (driver_id, driver_data) in enumerate(drivers.items()):
     except:
         pass    
     state['latest_events'] = [event['event_description'] for event in driver_data]
+    if len([event['event_description'] for event in driver_data]) == 0:
+        print("empty events")
     state['output_dir'] = f"scripts/agents/output/audio_{driver_id}.wav"
     state = app.invoke(state)
     with open("scripts/agents/input/state_store.json", "w", encoding="utf-8") as f:
-        json.dump(state, f, indent=4)
+        json.dump(state, f, indent=4, ensure_ascii=False)
     print(f"success {i}")
 
 
