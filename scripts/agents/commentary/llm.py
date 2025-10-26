@@ -37,6 +37,7 @@ class BosonChatModel:
     def __init__(self, apikey: str, model: str = LLM_MODEL, base_url: str = BOSON_BASE_URL):
         self.client = openai.Client(api_key=apikey, base_url=base_url)
         self.model = model
+        
 
     def _to_boson_messages(self, messages: List[BaseMessage]):
         boson = []
@@ -107,14 +108,14 @@ class HFEmbeddings(Embeddings):
         return self.model.encode([text], convert_to_numpy=True)[0].tolist()
 
 def intro_bot():
-
-    llm = BosonChatModel(apikey=BOSON_API_KEY)
+    drivers_path = "data/open_f1/drivers.json"
 
     # Save to disk
-    with open("vector_store.pkl", "rb") as f:
+    with open("data/commentary/vector_store.pkl", "rb") as f:
         vector_store = pickle.load(f)
 
     # Build RAG pipeline
+    llm = BosonChatModel(apikey=BOSON_API_KEY)
     graph = make_rag_app(vector_store, llm)
 
     # Query
@@ -125,7 +126,7 @@ def intro_bot():
     historical_data = result['answer']
 
     drivers = []
-    with open("data/drivers.json", "r") as f:
+    with open(drivers_path, "r") as f:
         drivers_data = json.load(f)
     
     for d in drivers_data:

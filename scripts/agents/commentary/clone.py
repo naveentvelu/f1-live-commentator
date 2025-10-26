@@ -3,18 +3,14 @@ import base64
 import requests
 from dotenv import load_dotenv
 import json
-# import openai
-# from dotenv import load_dotenv
 import wave
 
-# from langchain_openai import ChatOpenAI, OpenAI
-# from langchain_core.messages import HumanMessage
 load_dotenv()
 BOSON_API_KEY = os.getenv("BOSON_API_KEY")
 BASE_URL = os.getenv("BASE_URL")
 TTS_MODEL = os.getenv("TTS_MODEL")
 
-reference_path = "scripts/agents/input/david-c-cut-unedited.wav"
+reference_path = "data/commentary/input/david-c-cut-edited.wav"
 reference_transcript = (
     "The turkish Grand Prix, its lights out and away we go. And they are crawling off the line,"
     "especially Max Verstappen. Hamilton though takes a very good start, passes two cars already."
@@ -38,7 +34,6 @@ def clone_voice_node(state):
       - dict with 'output_audio_path'
     """
     commentator_response = state["commentator_response"][-1]
-    print(commentator_response)
     output_dir = state["output_dir"]
     stream = True if "stream" not in state else state["stream"]
     messages = [
@@ -95,20 +90,16 @@ def clone_voice_node(state):
                     if not line or not line.startswith("data: "):
                         continue
                     data_str = line[len("data: "):].strip()
-                    # print(f"data_str:{data_str}")
 
                     if data_str == "[DONE]":
                         break
-                    print("...")
                     try:
                         chunk = json.loads(data_str)
                         delta = chunk["choices"][0].get("delta", {})
                         audio = delta.get("audio")
                         if audio and "data" in audio:
-                            # print(audio)
                             wf.writeframes(base64.b64decode(audio["data"]))
                     except Exception as e:
-                        # print("⚠️ Skipped chunk:", e)
                         continue
         finally:
             wf.close()
@@ -130,11 +121,4 @@ def clone_voice_node(state):
             f.write(base64.b64decode(audio_b64))
 
     print(f"✅ Voice cloned and saved to {output_dir}")
-    # return {"output_audio_path": output_dir}
     return state
-
-state = {
-    'output_dir': 'scripts/agents/output/chinese_test_py.wav',
-    'commentator_response': ["Lǎotiān bǎoyòu jīnshān yínshān quán dōu yǒu. Lǎotiān jiàosuǒ bié guǎn jiānghú lónghǔ dòu. Lǎotiān dīngzhǔ zhè bèizi wǒ shàn bù diū"]
-} 
-print(clone_voice_node(state))
