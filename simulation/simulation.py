@@ -113,4 +113,7 @@ commentary = pyglet.media.load("ai_generated_f1_commentary.wav", streaming=False
 commentary.play()
 
 # Start the application
-pyglet.app.run()
+try:
+    pyglet.app.run()
+except KeyboardInterrupt:
+    print()
