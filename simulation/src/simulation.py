@@ -5,6 +5,7 @@ from pyglet import shapes, text
 from pyglet.gl import glClearColor
 from driver import Driver
 from simulation_state import SimulationState
+from leaderboard import Leaderboard
 
 # Create application window with the given width and height
 window = pyglet.window.Window(1400, 800)
@@ -52,19 +53,20 @@ track_location_data = [x for x in locations_data if x["driver_number"] == 1][:80
 starting_index = 17500
 
 # Resize and position the race within the application window
-alpha = 0.08
-initial_x = locations_data[starting_index]["x"] * alpha
-initial_y = locations_data[starting_index]["y"] * alpha
+alpha_x = 0.07
+alpha_y = 0.08
+initial_x = locations_data[starting_index]["x"] * alpha_x
+initial_y = locations_data[starting_index]["y"] * alpha_y
 for ld in locations_data:
     # Rescale x and y coordinates
-    ld["x"] = ld["x"] * alpha
-    ld["y"] = ld["y"] * alpha
+    ld["x"] = ld["x"] * alpha_x
+    ld["y"] = ld["y"] * alpha_y
 
     # Add translational offset
     ld["x"] -= initial_x
     ld["y"] -= initial_y
 
-    ld["x"] += 1250
+    ld["x"] += 1350
     ld["y"] += 475
 
 # Define shape of the race track
@@ -79,6 +81,9 @@ f1_sprite.scale = 0.08
 # Set up the initial state for the simulation
 start_time = datetime.timestamp(datetime.fromisoformat(locations_data[starting_index]["date"]))
 state = SimulationState(drivers, start_time)
+
+# Initialize leaderboard
+leaderboard = Leaderboard(state.ordered_drivers, batch)
 
 ## Functions which are ran periodically to create the simulation
 def update(dt):
@@ -108,6 +113,7 @@ def update(dt):
             state.position_index += 1
 
         state.ordered_drivers.sort(key=lambda driver: driver.position, reverse=True)
+        leaderboard.update()
 
 @window.event
 def on_draw():
