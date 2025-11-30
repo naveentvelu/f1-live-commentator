@@ -81,6 +81,8 @@ f1_sprite.scale = 0.08
 
 # Set up the initial state for the simulation
 class SimulationState:
+    __slots__ = ("time", "location_index", "drivers")
+
     def __init__(self, drivers, start_time):
         self.time = start_time
         self.location_index = 0
