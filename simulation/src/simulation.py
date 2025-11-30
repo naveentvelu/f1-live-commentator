@@ -2,7 +2,7 @@ import pyglet
 import json
 from datetime import datetime
 from pyglet import shapes, text
-from pyglet.gl import glClearColor
+from pyglet.gl import glClearColor, glEnable, GL_BLEND, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA
 from driver import Driver
 from simulation_state import SimulationState
 from leaderboard import Leaderboard
@@ -15,6 +15,10 @@ batch = pyglet.graphics.Batch()
 
 # Set background colour
 glClearColor(255, 255, 255, 1)
+
+# Enable transparency
+glEnable(GL_BLEND)
+pyglet.gl.glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
 
 # Load in race data
 with open('../../data/open_f1/drivers.json', 'r') as file:
