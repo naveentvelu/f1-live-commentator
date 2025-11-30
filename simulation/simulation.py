@@ -13,21 +13,26 @@ batch = pyglet.graphics.Batch()
 # Set background colour
 glClearColor(255, 255, 255, 1)
 
+class Driver:
+    __slots__ = ("name_acronym", "team_colour", "driver_number", "x", "y")
+
+    def __init__(self, driver_number: int, name_acronym: str, team_colour: str, x: int, y: int) -> None:
+        self.driver_number = driver_number
+        self.name_acronym = name_acronym
+        self.x = x
+        self.y = y
+
+        r = int(team_colour[:2], 16)
+        g = int(team_colour[2:4], 16)
+        b = int(team_colour[4:6], 16)
+        self.team_colour = (r,g,b)
+
 # Load drivers
 with open('../data/open_f1/drivers.json', 'r') as file:
-    drivers = {driver["driver_number"]: driver for driver in json.load(file)}
-
-# Add driver attributes relevant for the simulation
-for _, driver in drivers.items():
-    # Add current position along the track
-    driver["x"] = 0
-    driver["y"] = 0
-
-    # Add driver team colour as an rgb value
-    r = int(driver["team_colour"][:2], 16)
-    g = int(driver["team_colour"][2:4], 16)
-    b = int(driver["team_colour"][4:6], 16)
-    driver["team_colour_rgb"] = (r,g,b)
+    drivers = {
+        driver["driver_number"]: Driver(driver["driver_number"], driver["name_acronym"], driver["team_colour"], 0, 0)
+        for driver in json.load(file)
+    }
 
 # Load in racer locations
 with open('../data/open_f1/locations.json', 'r') as file:
@@ -94,8 +99,8 @@ def update(dt):
     while locations_data[state.location_index]["time"] < state.time:
         ld = locations_data[state.location_index]
         driver = state.drivers[ld["driver_number"]]
-        driver["x"] = ld["x"]
-        driver["y"] = ld["y"]
+        driver.x = ld["x"]
+        driver.y = ld["y"]
         state.location_index += 1
 
 @window.event
@@ -108,8 +113,8 @@ def on_draw():
 
     # Draw drivers
     for index, driver in state.drivers.items():
-        driver_icon = shapes.Circle(x=driver["x"], y=driver["y"], radius=24, color=driver["team_colour_rgb"])
-        driver_name = text.Label(driver["name_acronym"], x=driver["x"], y=driver["y"], anchor_x="center", anchor_y="center")
+        driver_icon = shapes.Circle(x=driver.x, y=driver.y, radius=24, color=driver.team_colour)
+        driver_name = text.Label(driver.name_acronym, x=driver.x, y=driver.y, anchor_x="center", anchor_y="center")
         driver_icon.draw()
         driver_name.draw()
 
