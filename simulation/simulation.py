@@ -14,7 +14,7 @@ batch = pyglet.graphics.Batch()
 glClearColor(255, 255, 255, 1)
 
 class Driver:
-    __slots__ = ("name_acronym", "team_colour", "driver_number", "x", "y", "position")
+    __slots__ = ("name_acronym", "team_colour", "driver_number", "x", "y", "position", "driver_icon", "driver_name")
 
     def __init__(self, driver_number: int, name_acronym: str, team_colour: str, x: int, y: int, position: int) -> None:
         self.driver_number = driver_number
@@ -27,6 +27,13 @@ class Driver:
         g = int(team_colour[2:4], 16)
         b = int(team_colour[4:6], 16)
         self.team_colour = (r,g,b)
+
+        self.driver_icon = shapes.Circle(x=self.x, y=self.y, radius=24, color=self.team_colour)
+        self.driver_name = text.Label(self.name_acronym, x=self.x, y=self.y, anchor_x="center", anchor_y="center")
+
+    def draw(self):
+        self.driver_icon.draw()
+        self.driver_name.draw()
 
 # Load drivers
 with open('../data/open_f1/drivers.json', 'r') as file:
@@ -140,6 +147,12 @@ def update(dt):
         driver = state.drivers[ld["driver_number"]]
         driver.x = ld["x"]
         driver.y = ld["y"]
+
+        driver.driver_icon.x = driver.x
+        driver.driver_icon.y = driver.y
+        driver.driver_name.x = driver.x
+        driver.driver_name.y = driver.y
+
         state.location_index += 1
 
     if position_data[state.position_index]["time"] < state.time:
@@ -161,10 +174,7 @@ def on_draw():
 
     # Draw drivers
     for driver in state.ordered_drivers:
-        driver_icon = shapes.Circle(x=driver.x, y=driver.y, radius=24, color=driver.team_colour)
-        driver_name = text.Label(driver.name_acronym, x=driver.x, y=driver.y, anchor_x="center", anchor_y="center")
-        driver_icon.draw()
-        driver_name.draw()
+        driver.draw()
 
 # Schedule periodic updating of racer locations
 pyglet.clock.schedule_interval(update, 1/120)
