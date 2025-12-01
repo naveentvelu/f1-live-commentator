@@ -93,7 +93,7 @@ track_joints = tuple(shapes.Circle(x=track_point["x"], y=track_point["y"], radiu
 track_lines = tuple(shapes.Line(x=track_location_data[i]["x"], y=track_location_data[i]["y"], x2=track_location_data[i+1]["x"], y2=track_location_data[i+1]["y"], thickness=7, color=(0,0,0), batch=batch) for i in range(len(track_location_data)-1))
 
 # Define display parameters for the F1 logo
-f1_sprite = pyglet.sprite.Sprite(f1_logo, x=25, y=520, batch=batch)
+f1_sprite = pyglet.sprite.Sprite(f1_logo, x=24, y=530, batch=batch)
 f1_sprite.scale = 0.08
 
 # Set up the initial state for the simulation
