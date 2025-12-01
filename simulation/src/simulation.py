@@ -23,7 +23,7 @@ pyglet.gl.glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
 # Load in race data
 with open('../../data/open_f1/drivers.json', 'r') as file:
     drivers = {
-        driver["driver_number"]: Driver(driver["driver_number"], driver["name_acronym"], driver["team_colour"], 0, 0, 0)
+        driver["driver_number"]: Driver(driver["driver_number"], driver["name_acronym"], driver["team_colour"], 0, 0, 0, "Leader")
         for driver in json.load(file)
     }
 
@@ -32,6 +32,12 @@ with open('../../data/open_f1/locations.json', 'r') as file:
 
 with open('../../data/open_f1/positions.json', 'r') as file:
     position_data = json.load(file)
+
+with open('../../data/open_f1/intervals.json', 'r') as file:
+    interval_data = json.load(file)
+
+with open('../../data/open_f1/laps.json', 'r') as file:
+    lap_data = json.load(file)
 
 print("Successfully loaded race data")
 
@@ -46,9 +52,17 @@ for ld in locations_data:
 for pd in position_data:
     pd["time"] = datetime.timestamp(datetime.fromisoformat(pd["date"]))
 
+for intd in interval_data:
+    intd["time"] = datetime.timestamp(datetime.fromisoformat(intd["date"]))
+
+for ld in lap_data:
+    ld["time"] = datetime.timestamp(datetime.fromisoformat(ld["date_start"]))
+
 # Sort location and position data by time, and then driver
 locations_data.sort(key=lambda x: (x["time"], x["driver_number"]))
 position_data.sort(key=lambda x: (x["time"], x["driver_number"]))
+interval_data.sort(key=lambda x: (x["time"], x["driver_number"]))
+lap_data.sort(key=lambda x: (x["time"], x["lap_number"]))
 
 # Sample points along the track for rendering
 track_location_data = [x for x in locations_data if x["driver_number"] == 1][:800][::4]
@@ -87,7 +101,7 @@ start_time = datetime.timestamp(datetime.fromisoformat(locations_data[starting_i
 state = SimulationState(drivers, start_time)
 
 # Initialize leaderboard
-leaderboard = Leaderboard(state.ordered_drivers, batch)
+leaderboard = Leaderboard(state.ordered_drivers, lap_data[-1]["lap_number"], batch)
 
 ## Functions which are ran periodically to create the simulation
 def update(dt):
@@ -109,7 +123,7 @@ def update(dt):
 
         state.location_index += 1
 
-    if position_data[state.position_index]["time"] < state.time:
+    if position_data[state.position_index]["time"] < state.time or interval_data[state.interval_index]["time"] < state.time or lap_data[state.lap_index]["time"] < state.time:
         while position_data[state.position_index]["time"] < state.time:
             pd = position_data[state.position_index]
             driver = state.drivers[pd["driver_number"]]
@@ -117,6 +131,19 @@ def update(dt):
             state.position_index += 1
 
         state.ordered_drivers.sort(key=lambda driver: driver.position, reverse=True)
+
+        while interval_data[state.interval_index]["time"] < state.time:
+            intd = interval_data[state.interval_index]
+            driver = state.drivers[intd["driver_number"]]
+            driver.gap_to_leader = "Leader" if intd["gap_to_leader"] == None else f"{intd['gap_to_leader']:.3f}"
+            state.interval_index += 1
+
+        while lap_data[state.lap_index]["time"] < state.time:
+            ld = lap_data[state.lap_index]
+            if ld["lap_number"] > leaderboard.lap:
+                leaderboard.lap = ld["lap_number"]
+            state.lap_index += 1
+
         leaderboard.update()
 
 @window.event

@@ -1,14 +1,15 @@
 from pyglet import shapes, text
 
 class Driver:
-    __slots__ = ("name_acronym", "team_colour", "driver_number", "x", "y", "position", "driver_icon", "driver_name")
+    __slots__ = ("name_acronym", "team_colour", "driver_number", "x", "y", "position", "driver_icon", "driver_name", "gap_to_leader")
 
-    def __init__(self, driver_number: int, name_acronym: str, team_colour: str, x: int, y: int, position: int) -> None:
+    def __init__(self, driver_number: int, name_acronym: str, team_colour: str, x: int, y: int, position: int, gap_to_leader: str) -> None:
         self.driver_number = driver_number
         self.name_acronym = name_acronym
         self.x = x
         self.y = y
         self.position = position
+        self.gap_to_leader = gap_to_leader
 
         r = int(team_colour[:2], 16)
         g = int(team_colour[2:4], 16)

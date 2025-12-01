@@ -1,11 +1,14 @@
+from driver import Driver
 
 class SimulationState:
-    __slots__ = ("time", "location_index", "position_index", "drivers", "ordered_drivers")
+    __slots__ = ("time", "location_index", "position_index", "interval_index", "lap_index", "drivers", "ordered_drivers")
 
-    def __init__(self, drivers, start_time):
+    def __init__(self, drivers: dict[int, Driver], start_time: int) -> None:
         self.time = start_time
         self.location_index = 0
         self.position_index = 0
+        self.interval_index = 0
+        self.lap_index = 0
         self.drivers = drivers
 
         # Initial positions
